@@ -16,6 +16,7 @@ add_executable(unittests
     src/unit_test_main.cpp
     src/test_factorial.cpp
     src/pair_sum.cpp
+    src/zero_sum.cpp
     )
 target_link_libraries(unittests PUBLIC
     Flags
