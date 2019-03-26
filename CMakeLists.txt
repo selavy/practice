@@ -18,6 +18,8 @@ add_executable(unittests
     src/pair_sum.cpp
     src/zero_sum.cpp
     src/sort_binary_array.cpp
+    src/branchless_if_else.cpp
+    src/duplicate.cpp
     )
 target_link_libraries(unittests PUBLIC
     Flags
