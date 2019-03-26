@@ -2,6 +2,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <unordered_set>
 
 
 // version #1: linear scan
@@ -39,6 +40,21 @@ std::pair<Iter, Iter> pair_sum2(Iter first, Iter last, int value) {
     return std::make_pair(last, last);
 }
 
+// version #3: hash table + scan
+template <class Iter>
+std::pair<Iter, Iter> pair_sum3(Iter first, Iter last, int value) {
+    std::unordered_map<int, Iter> seen;
+    for (;first != last; ++first) {
+        int other = value - *first;
+        auto found = seen.find(other);
+        if (found != seen.end()) {
+            return std::make_pair(first, found->second);
+        }
+        seen.emplace(*first, first);
+    }
+    return std::make_pair(last, last);
+}
+
 TEST_CASE("Pair Sum", "[pair sum]") {
     std::vector<int> vs = { 1, 5, 2, 9, 6, 3, 7, 8, 1, 0, 8, 6, -1, -5 };
 
@@ -72,6 +88,18 @@ TEST_CASE("Pair Sum", "[pair sum]") {
 
         SECTION("PairSum2") {
             auto result = pair_sum2(vs.begin(), vs.end(), value);
+            if (expected) {
+                REQUIRE(result.first != vs.end());
+                REQUIRE(result.second != vs.end());
+                REQUIRE((*result.first + *result.second) == value);
+            } else {
+                REQUIRE(result.first == vs.end());
+                REQUIRE(result.second == vs.end());
+            }
+        }
+
+        SECTION("PairSum3") {
+            auto result = pair_sum3(vs.begin(), vs.end(), value);
             if (expected) {
                 REQUIRE(result.first != vs.end());
                 REQUIRE(result.second != vs.end());
