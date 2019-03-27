@@ -16,6 +16,7 @@ int find_dup1(std::vector<int> vs) {
     return -1;
 }
 
+// presence bit-vector
 int find_dup2(std::vector<int> vs) {
     std::vector<bool> seen(vs.size(), false);
     for (int v : vs) {
@@ -24,6 +25,19 @@ int find_dup2(std::vector<int> vs) {
         }
         seen[v] = true;
     }
+    return -1;
+}
+
+// sorting
+int find_dup3(std::vector<int> vs) {
+    std::sort(vs.begin(), vs.end());
+
+    for (std::size_t i = 1; i < vs.size(); ++i) {
+        if (vs[i - 1] == vs[i]) {
+            return vs[i];
+        }
+    }
+
     return -1;
 }
 
@@ -46,6 +60,11 @@ TEST_CASE("Find Duplicate", "[duplicate]") {
 
         SECTION("Solution #2") {
             auto result = find_dup2(input);
+            REQUIRE(result == expected);
+        }
+
+        SECTION("Solution #3") {
+            auto result = find_dup3(input);
             REQUIRE(result == expected);
         }
     }

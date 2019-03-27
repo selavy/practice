@@ -20,6 +20,7 @@ add_executable(unittests
     src/sort_binary_array.cpp
     src/branchless_if_else.cpp
     src/duplicate.cpp
+    src/make_change.cpp
     )
 target_link_libraries(unittests PUBLIC
     Flags
