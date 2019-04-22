@@ -21,6 +21,7 @@ add_executable(unittests
     src/branchless_if_else.cpp
     src/duplicate.cpp
     src/make_change.cpp
+    src/ring_buffer.cpp
     )
 target_link_libraries(unittests PUBLIC
     Flags
