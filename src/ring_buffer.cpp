@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <cassert>
+#include <chrono>
+#include <deque>
 
 template <class T>
 class RingBuffer
@@ -44,7 +46,7 @@ public:
         return get(i);
     }
 
-    size_t length() const noexcept {
+    size_t size() const noexcept {
         return _length;
     }
 
@@ -94,5 +96,61 @@ TEST_CASE("Ring Buffer push_front", "[ring_buffer]")
 TEST_CASE("Buffer size rounding", "[ring_buffer]")
 {
     RingBuffer<double> r(15, NAN);
-    REQUIRE(r.length() == 16);
+    REQUIRE(r.size() == 16);
+}
+
+// using Timestamp = std::chrono::steady_clock::time_point;
+using Timestamp = int64_t;
+
+class Delta
+{
+public:
+    Delta() : _events() {}
+
+    void add_event(Timestamp ts, double value) {
+        if (value != value) {
+            return;
+        }
+        if (!_events.empty() && _events.back().value == value) {
+            return;
+        }
+        _events.push_back({ ts, value });
+    }
+
+    void trim(Timestamp cutoff) noexcept {
+        while (_events.size() > 1 && _events[1].ts < cutoff) {
+            _events.pop_front();
+        }
+    }
+
+    double get(Timestamp cutoff) const noexcept {
+        for (auto rit = _events.rbegin(); rit != _events.rend(); ++rit) {
+            if (rit->ts < cutoff) {
+                return rit->value;
+            }
+        }
+        return NAN;
+    }
+
+    size_t size() const noexcept {
+        return _events.size();
+    }
+
+private:
+    struct Event { Timestamp ts; double value; };
+    std::deque<Event> _events;
+};
+
+TEST_CASE("Deltas", "[delta]")
+{
+    Delta d;
+    REQUIRE(std::isnan(d.get(0)));
+    d.add_event(1, 1.0);
+    d.add_event(2, 2.0);
+    d.add_event(3, 3.0);
+    REQUIRE(d.get(3) == 2.0);
+    d.add_event(4, 4.0);
+    d.trim(3);
+    REQUIRE(d.size() == 3u);
+
 }
